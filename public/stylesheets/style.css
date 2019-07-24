@@ -37,38 +37,6 @@ body {
   width: 100%;
 }
 
-/* Header */
-
-header {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  width: 100%;
-  height: 80px;
-  background: #fff url(/images/logo.svg) center center no-repeat;
-  border-bottom: 1px solid #f3f3ff;
-}
-
-header a.shop,
-header a.github {
-  margin: 30px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #666ee8;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  text-decoration: none;
-}
-
-header a.github {
-  padding-left: 20px;
-  background: url(/images/github.svg) left center no-repeat;
-}
-
-header a:hover {
-  text-decoration: underline;
-}
-
 /* Checkout */
 
 #checkout {
@@ -107,20 +75,6 @@ h2 {
   font-weight: 500;
 }
 
-/* Payment Request */
-
-#payment-request {
-  visibility: hidden;
-  opacity: 0;
-  min-height: 100px;
-  padding: 20px 0;
-  transition: visibility 0s, opacity 0.3s ease-in;
-}
-
-#payment-request.visible {
-  visibility: visible;
-  opacity: 1;
-}
 
 #payment-form {
   margin: 0 -30px;
@@ -317,7 +271,7 @@ button {
 }
 
 button:focus {
-  background: #555abf;
+  background: #00b5ff;
 }
 
 button:hover {
@@ -327,110 +281,7 @@ button:hover {
 }
 
 button:active {
-  background: #43458b;
-}
-
-#country {
-  display: flex;
-  align-items: center;
-}
-
-#country select {
-  margin: 0 -15px 0 -30px;
-  padding: 0 15px 0 30px;
-}
-
-#country::before {
-  display: inline-flex;
-  content: '';
-  width: 21px;
-  height: 15px;
-  background: url(/images/flags.svg);
-  background-position: -1000px -1000px;
-  background-repeat: no-repeat;
-  margin-right: 10px;
-}
-
-#country.at::before {
-  background-position: -165px -10px;
-}
-#country.au::before {
-  background-position: -196px -10px;
-}
-#country.be::before {
-  background-position: -227px -10px;
-}
-#country.br::before {
-  background-position: -351px -10px;
-}
-#country.ca::before {
-  background-position: -382px -10px;
-}
-#country.ch::before {
-  background-position: -475px -10px;
-}
-#country.cn::before {
-  background-position: -41px -35px;
-}
-#country.de::before {
-  background-position: -134px -35px;
-}
-#country.dk::before {
-  background-position: -196px -35px;
-}
-#country.es::before {
-  background-position: -320px -35px;
-}
-#country.eu::before {
-  background-position: -351px -35px;
-}
-#country.fi::before {
-  background-position: -382px -35px;
-}
-#country.fr::before {
-  background-position: -413px -35px;
-}
-#country.gb::before {
-  background-position: -475px -35px;
-}
-#country.hk::before {
-  background-position: -41px -60px;
-}
-#country.ie::before {
-  background-position: -196px -60px;
-}
-#country.it::before {
-  background-position: -351px -60px;
-}
-#country.jp::before {
-  background-position: -444px -60px;
-}
-#country.lu::before {
-  background-position: -258px -85px;
-}
-#country.mx::before {
-  background-position: -475px -85px;
-}
-#country.nl::before {
-  background-position: -103px -110px;
-}
-#country.no::before {
-  background-position: -134px -110px;
-}
-#country.nz::before {
-  background-position: -165px -110px;
-}
-#country.pt::before {
-  background-position: -413px -110px;
-}
-#country.se::before {
-  background-position: -103px -135px;
-}
-#country.sg::before {
-  background-position: -134px -135px;
-}
-#country.us::before {
-  background-position: -475px -135px;
+  background: #00b5ff;
 }
 
 /* Payment Methods */
@@ -519,10 +370,9 @@ button:active {
 }
 
 .payment-info p.notice {
-  font-size: 14px;
+  font-size: 12px;
   color: #8898aa;
   text-align: left;
-  padding-bottom: 15px;
 }
 
 #wechat-qrcode img {
@@ -848,7 +698,7 @@ button:active {
     display: none;
   }
   #payment-request {
-    min-height: 0;
+    min-height: 40px;
     padding-right: 15px;
     padding-left: 15px;
   }

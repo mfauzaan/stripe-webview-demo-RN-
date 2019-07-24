@@ -94,7 +94,6 @@
   // Submit handler for our payment form.
   form.addEventListener('submit', async event => {
     event.preventDefault();
-    const url = new URL(window.location.href);
 
     // Disable the Pay button to prevent multiple click events.
     submitButton.disabled = true;
@@ -122,7 +121,9 @@
 
   function handleServerResponse(response) {
     if (response.error) {
+      console.log(response.error);
       // Show error from server on payment form
+      // window.location.replace("/?success=false");
     } else if (response.requires_action) {
       // Use Stripe.js to handle required card action
       stripe
@@ -140,15 +141,15 @@
                 payment_intent_id: result.paymentIntent.id,
               }),
             })
-              .then(function(confirmResult) {
-                return confirmResult.json();
-              })
-              .then(handleServerResponse);
+            .then(function(confirmResult) {
+              return confirmResult.json();
+            })
+            .then(handleServerResponse);
           }
         });
     } else {
       // Show success message
-      window.location.replace("/");
+      window.location.replace("/?success=true");
     }
   }
 
