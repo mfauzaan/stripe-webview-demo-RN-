@@ -98,55 +98,51 @@
     // Disable the Pay button to prevent multiple click events.
     submitButton.disabled = true;
     submitButton.textContent = 'Processing…';
-
-    stripe.createPaymentMethod('card', card).then(function(result) {
-      if (result.error) {
-        console.log('error', result.error);
-        // Show error in payment form
-      } else {
-        // Otherwise send paymentMethod.id to your server (see Step 2)
-        fetch('/confirm_payment', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({payment_method_id: result.paymentMethod.id}),
-        }).then(function(result) {
-          // Handle server response (see Step 3)
-          result.json().then(function(json) {
-            handleServerResponse(json);
-          });
-        });
-      }
-    });
+    
+    // Create payment
+    const response = await stripe.createPaymentMethod('card', card)
+    
+    if (response.error) {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Add Card';
+      // Show error in payment form
+    } else {
+      // Otherwise send paymentMethod.id to your server (see Step 2)
+      const confirmPayment = await fetch('/confirm_payment', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({payment_method_id: response.paymentMethod.id}),
+      })
+      
+      // Handle response
+      handleServerResponse(await confirmPayment.json());
+    }
   });
 
-  function handleServerResponse(response) {
+  async function handleServerResponse(response) {
     if (response.error) {
-      console.log(response.error);
       // Show error from server on payment form
-      // window.location.replace("/?success=false");
+      window.location.replace("/?success=false");
     } else if (response.requires_action) {
       // Use Stripe.js to handle required card action
-      stripe
-        .handleCardAction(response.payment_intent_client_secret)
-        .then(function(result) {
-          if (result.error) {
-            // Show error in payment form
-          } else {
-            // The card action has been handled
-            // The PaymentIntent can be confirmed again on the server
-            fetch('/confirm_payment', {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({
-                payment_intent_id: result.paymentIntent.id,
-              }),
-            })
-            .then(function(confirmResult) {
-              return confirmResult.json();
-            })
-            .then(handleServerResponse);
-          }
-        });
+      const result = await stripe.handleCardAction(response.payment_intent_client_secret)
+
+      if (result.error) {
+        window.location.replace("/?success=false");
+        // Show error in payment form
+      } else {
+        // The card action has been handled
+        // The PaymentIntent can be confirmed again on the server
+        const confirmPayment = await fetch('/confirm_payment', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            payment_intent_id: result.paymentIntent.id,
+          }),
+        })
+
+        handleServerResponse(await confirmPayment.json());
+      }
     } else {
       // Show success message
       window.location.replace("/?success=true");

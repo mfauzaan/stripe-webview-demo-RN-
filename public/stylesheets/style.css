@@ -382,7 +382,7 @@ button:active {
 .element-errors {
   display: inline-flex;
   height: 20px;
-  margin: 15px auto 0;
+  margin: 15px auto 15px;
   padding-left: 20px;
   color: #e25950;
   opacity: 0;

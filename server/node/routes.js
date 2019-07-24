@@ -39,10 +39,10 @@ router.get('/paymentIntent', async (req, res, next) => {
   return res.render('index');
 });
 
-router.post('/confirm_payment', async (request, response, next) => {
+router.post('/confirm_payment', async (req, res, next) => {
   try {
     let intent;
-    if (request.body.payment_method_id) {
+    if (req.body.payment_method_id) {
       // Attach customer
       const customer = await stripe.customers.create({
         name: 'Mohamed Fauzaan',
@@ -56,7 +56,7 @@ router.post('/confirm_payment', async (request, response, next) => {
 
       // Create the PaymentIntent
       intent = await stripe.paymentIntents.create({
-        payment_method: request.body.payment_method_id,
+        payment_method: req.body.payment_method_id,
         amount: 200,
         currency: 'myr',
         confirmation_method: 'manual',
@@ -64,13 +64,13 @@ router.post('/confirm_payment', async (request, response, next) => {
         save_payment_method: true,
         customer: customer.id
       });
-    } else if (request.body.payment_intent_id) {
+    } else if (req.body.payment_intent_id) {
       intent = await stripe.paymentIntents.confirm(
-        request.body.payment_intent_id
+        req.body.payment_intent_id
       );
     }
-    // Send the response to the client
-    response.send(generate_payment_response(intent));
+    // Send the res to the client
+    res.send(generate_payment_response(intent));
   } catch (e) {
     // Display error on client
     return response.send({ error: e.message });
