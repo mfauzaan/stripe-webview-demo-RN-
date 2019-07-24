@@ -1,0 +1,78 @@
+<html>
+
+<head>
+  <title>Stripe Payments Demo</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,user-scalable=0"/>
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@stripe">
+  <meta name="twitter:title" content="Stripe Payments Demo">
+  <meta name="twitter:description" content="Sample store accepting universal payments on the web with Stripe Elements, Payment Request, Apple Pay, Google Pay, and the Sources API.">
+  <meta name="twitter:image" content="https://stripe-payments-demo.appspot.com/images/twitter.png">
+  <link rel="stylesheet" type="text/css" href="/stylesheets/store.css">
+  <link rel="icon" type="image/png" sizes="104x80" href="/images/logo.png">
+</head>
+
+<body>
+  <div id="main" class="loading">
+    <div id="checkout">
+      <img src="/images/socar_logo_blue.svg" alt="">
+      <div id="payment-request">
+        <div id="payment-request-button"></div>
+      </div>
+      <form id="payment-form" method="POST" action="/orders">
+        <p class="instruction">Complete your payment details below</p>
+        <section>
+          <h2>Payment Information</h2>
+          <div class="payment-info card visible">
+            <fieldset>
+              <label>
+                <div id="card-element" class="field"></div>
+              </label>
+            </fieldset>
+            <p class="notice">By providing your card details and confirming this payment, you’re authorizing Socar and Stripe, our payment
+              provider, to send instructions to your bank to debit your account.</p>
+            <div id="card-errors" class="element-errors"></div>
+          </div>
+          <div class="payment-info redirect">
+            <p class="notice">You’ll be redirected to the banking site to complete your payment.</p>
+          </div>
+          <div class="payment-info receiver">
+            <p class="notice">Payment information will be provided after you place the order.</p>
+          </div>
+        </section>
+        <button type="submit">Pay</button>
+        <button type="submit" class="inactive">Cancel</button>
+      </form>
+    </div>
+    <div id="confirmation">
+      <div class="status processing">
+        <h1>Completing your order…</h1>
+        <p>We’re just waiting for the confirmation from your bank… This might take a moment but feel free to close this page.</p>
+        <p>We’ll send your receipt via email shortly.</p>
+      </div>
+      <div class="status success">
+        <h1>Thanks for your order!</h1>
+        <p>Woot! You successfully made a payment with Stripe.</p>
+        <p class="note">We just sent your receipt to your email address, and your items will be on their way shortly.</p>
+      </div>
+      <div class="status receiver">
+        <h1>Thanks! One last step!</h1>
+        <p>Please make a payment using the details below to complete your order.</p>
+        <div class="info"></div>
+      </div>
+      <div class="status error">
+        <h1>Oops, payment failed.</h1>
+        <p>It looks like your order could not be paid at this time. Please try again or select a different payment option.</p>
+        <p class="error-message"></p>
+      </div>
+    </div>
+  </div>
+  <!-- Stripe.js v3 for Elements -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <!-- App -->
+  <script src="/javascripts/store.js"></script>
+  <script src="/javascripts/payments.js"></script>
+</body>
+
+</html>

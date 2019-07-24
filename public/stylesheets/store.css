@@ -34,7 +34,7 @@ body {
 }
 
 #main.checkout:not(.success):not(.error) {
-  width: calc(100% - 450px);
+  width: 100%;
 }
 
 /* Header */
@@ -177,7 +177,7 @@ fieldset:not(.with-state) label.zip {
 }
 
 fieldset label span {
-  min-width: 125px;
+  min-width: 80px;
   padding: 0 15px;
   text-align: right;
 }
@@ -290,7 +290,7 @@ select:-webkit-autofill {
 
 button {
   display: block;
-  background: #666ee8;
+  background: #00d2ff;
   color: #fff;
   box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
   border-radius: 4px;
@@ -301,6 +301,19 @@ button {
   outline: none;
   cursor: pointer;
   transition: all 0.15s ease;
+  margin-bottom: 10px;
+}
+
+.inactive {
+  background: #aab7c4;
+}
+
+.inactive:hover {
+  background: #525f7f;
+}
+
+.inactive:active {
+  background: #525f7f;
 }
 
 button:focus {
@@ -509,6 +522,7 @@ button:active {
   font-size: 14px;
   color: #8898aa;
   text-align: left;
+  padding-bottom: 15px;
 }
 
 #wechat-qrcode img {
