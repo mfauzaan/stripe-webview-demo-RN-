@@ -674,7 +674,7 @@ button:active {
   #main.checkout:not(.success):not(.error) {
     width: 100%;
   }
-  #payment-request {
+  .payment-request {
     padding-top: 0;
     min-height: 80px;
   }
@@ -697,7 +697,7 @@ button:active {
   header a.github {
     display: none;
   }
-  #payment-request {
+  .payment-request {
     min-height: 40px;
     padding-right: 15px;
     padding-left: 15px;
@@ -746,4 +746,8 @@ button:active {
   #confirmation h1 {
     text-align: center;
   }
+}
+
+.logo {
+  margin: 0px auto 30px;
 }
