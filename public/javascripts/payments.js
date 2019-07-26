@@ -122,12 +122,14 @@
   async function handleServerResponse(response) {
     if (response.error) {
       // Show error from server on payment form
+      console.log('Error');
       window.location.replace("/?success=false");
     } else if (response.requires_action) {
       // Use Stripe.js to handle required card action
       const result = await stripe.handleCardAction(response.payment_intent_client_secret)
 
       if (result.error) {
+        console.log('Error');
         window.location.replace("/?success=false");
         // Show error in payment form
       } else {
@@ -145,6 +147,7 @@
       }
     } else {
       // Show success message
+      console.log('Success');
       window.location.replace("/?success=true");
     }
   }

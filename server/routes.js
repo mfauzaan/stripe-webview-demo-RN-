@@ -43,17 +43,6 @@ router.post('/confirm_payment', async (req, res, next) => {
   try {
     let intent;
     if (req.body.payment_method_id) {
-      // Attach customer
-      const customer = await stripe.customers.create({
-        name: 'Mohamed Fauzaan',
-        email: 'mfauzaan@icloud.com',
-        phone: `960 9557555`,
-        metadata: {
-          memberId: 123213,
-          birthday: 19970801,
-        },
-      });
-
       // Create the PaymentIntent
       intent = await stripe.paymentIntents.create({
         payment_method: req.body.payment_method_id,
@@ -61,25 +50,27 @@ router.post('/confirm_payment', async (req, res, next) => {
         currency: 'myr',
         confirmation_method: 'manual',
         confirm: true,
-        save_payment_method: true,
-        customer: customer.id
+        setup_future_usage: 'off_session'
       });
+
     } else if (req.body.payment_intent_id) {
       intent = await stripe.paymentIntents.confirm(
         req.body.payment_intent_id
       );
     }
     // Send the res to the client
-    res.send(generate_payment_response(intent));
+    res.send(await generate_payment_response(intent));
   } catch (e) {
+    console.log(e);
     // Display error on client
     return response.send({ error: e.message });
   }
 });
 
-const generate_payment_response = (intent) => {
+const generate_payment_response = async (intent) => {
   // Note that if your API version is before 2019-02-11, 'requires_action'
   // appears as 'requires_source_action'.
+  
   if (
     intent.status === 'requires_action' &&
     intent.next_action.type === 'use_stripe_sdk'
@@ -92,6 +83,21 @@ const generate_payment_response = (intent) => {
   } else if (intent.status === 'succeeded') {
     // The payment didn’t need any additional actions and completed!
     // Handle post-payment fulfillment
+    console.log('Attach payment');
+
+    const customer = await stripe.customers.create({
+      payment_method: intent.payment_method,
+      name: 'Mohamed Fauzaan',
+      email: 'mfauzaan@icloud.com',
+      phone: `960 9557555`,
+      metadata: {
+        memberId: 123213,
+        birthday: 19970801,
+      },
+    });
+
+    console.log(customer);
+    
     return {
       success: true
     };
