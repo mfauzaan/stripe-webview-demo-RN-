@@ -1,19 +1,11 @@
 /**
  * payments.js
- * Stripe Payments Demo. Created by Romain Huet (@romainhuet)
- * and Thorsten Schaeff (@thorwebdev).
+ * Stripe Registration. Created by Fauzaan
  *
- * This modern JavaScript file handles the checkout process using Stripe.
- *
- * 1. It shows how to accept card payments with the `card` Element, and
- * the `paymentRequestButton` Element for Payment Request and Apple Pay.
- * 2. It shows how to use the Stripe Sources API to accept non-card payments,
- * such as iDEAL, SOFORT, SEPA Direct Debit, and more.
+ * This modern JavaScript file handles the register process using Stripe.
  */
 
 (async () => {
-  'use strict';
-
   let config = '';
   // Create references to the main form and its submit button.
   const form = document.getElementById('payment-form');
@@ -30,11 +22,7 @@
   /**
    * Setup Stripe Elements.
    */
-
-  // Create a Stripe client.
   const stripe = Stripe(config.stripePublishableKey);
-
-  // Create an instance of Elements.
   const elements = stripe.elements();
 
   // Prepare the styles for Elements.
@@ -56,15 +44,8 @@
     },
   };
 
-  /**
-   * Implement a Stripe Card Element that matches the look-and-feel of the app.
-   *
-   * This makes it easy to collect debit and credit card payments information.
-   */
-
   // Create a Card Element and pass some custom styles to it.
   const card = elements.create('card', { style, hidePostalCode: true });
-  // Mount the Card Element on the page.
   card.mount('#card-element');
 
   // Monitor change events on the Card Element to display any errors.
@@ -80,80 +61,90 @@
     submitButton.disabled = false;
   });
 
+  async function createPaymentIntent(body) {
+    try {
+      const confirmPayment = await fetch('/confirm_payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      const data = await confirmPayment.json();
+
+      if (confirmPayment.status === 200) {
+        // Return json
+        return data;
+      }
+
+      console.log('Register Error', confirmPayment);
+      return window.postMessage('registerError|close');
+    } catch (error) {
+      console.log('error', error);
+      // Return error message
+      return window.postMessage('registerError|close');
+    }
+  }
+
+  /**
+   * Handle Server response
+   */
+  async function handleServerResponse(response) {
+    if (response.error) {
+      console.log('Response Error:', response.error);
+      window.postMessage('registerError|close');
+    } else if (response.requires_action) {
+      // Use Stripe.js to handle required card action
+      const result = await stripe.handleCardAction(response.payment_intent_client_secret);
+
+      if (result.error) {
+        console.log('Response requires_action:', result.error);
+        // Show error in payment form
+        return window.postMessage('registerError|close');
+      }
+
+      // The card action has been handled
+      // The PaymentIntent can be confirmed again on the server || Pass memeber ID
+      const confirmPayment = await createPaymentIntent({ payment_intent_id: result.paymentIntent.id, memberId: '220292' });
+
+      return handleServerResponse(confirmPayment);
+    }
+
+    // Show success message
+    console.log('Success');
+    return window.postMessage('registerComplete', '*');
+  }
+
   /**
    * Handle the form submission.
    *
    * This uses Stripe.js to confirm the PaymentIntent using payment details collected
    * with Elements.
-   *
-   * Please note this form is not submitted when the user chooses the "Pay" button
-   * or Apple Pay, Google Pay, and Microsoft Pay since they provide name and
-   * shipping information directly.
    */
-
-  // Submit handler for our payment form.
-  form.addEventListener('submit', async event => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     // Disable the Pay button to prevent multiple click events.
     submitButton.disabled = true;
     submitButton.textContent = 'Processing…';
-    
+
     // Create payment
-    const response = await stripe.createPaymentMethod('card', card)
-    
+    const response = await stripe.createPaymentMethod('card', card);
+
+    // Throw error based on response
     if (response.error) {
       submitButton.disabled = false;
       submitButton.textContent = 'Add Card';
-      // Show error in payment form
-    } else {
-      // Otherwise send paymentMethod.id to your server (see Step 2)
-      const confirmPayment = await fetch('/confirm_payment', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({payment_method_id: response.paymentMethod.id}),
-      })
-      
-      // Handle response
-      handleServerResponse(await confirmPayment.json());
     }
+
+    // Otherwise send paymentMethod.id to your server (see Step 2) || Pass memeber ID
+    const confirmPayment = await createPaymentIntent({ payment_method_id: response.paymentMethod.id, memberId: '220292' });
+
+    // Handle response
+    return handleServerResponse(confirmPayment);
   });
 
-  async function handleServerResponse(response) {
-    if (response.error) {
-      // Show error from server on payment form
-      console.log('Error');
-      window.location.replace("/?success=false");
-    } else if (response.requires_action) {
-      // Use Stripe.js to handle required card action
-      const result = await stripe.handleCardAction(response.payment_intent_client_secret)
-
-      if (result.error) {
-        console.log('Error');
-        window.location.replace("/?success=false");
-        // Show error in payment form
-      } else {
-        // The card action has been handled
-        // The PaymentIntent can be confirmed again on the server
-        const confirmPayment = await fetch('/confirm_payment', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            payment_intent_id: result.paymentIntent.id,
-          }),
-        })
-
-        handleServerResponse(await confirmPayment.json());
-      }
-    } else {
-      // Show success message
-      console.log('Success');
-      window.location.replace("/?success=true");
-    }
-  }
-
+  // After-render effetcs
   const mainElement = document.getElementById('main');
   mainElement.classList.add('checkout');
-
   document.getElementById('main').classList.remove('loading');
 })();

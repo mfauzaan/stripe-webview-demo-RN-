@@ -17,47 +17,45 @@ const stripe = require('stripe')(config.stripe.secretKey);
 stripe.setApiVersion(config.stripe.apiVersion);
 
 /**
- * Stripe integration to accept all types of payments with 3 POST endpoints.
+ * Stripe Register payment flow.
  *
- * 1. POST endpoint to create a PaymentIntent.
- * 2. For payments using Elements, Payment Request, Apple Pay, Google Pay, Microsoft Pay
- * the PaymentIntent is confirmed automatically with Stripe.js on the client-side.
- * 3. POST endpoint to be set as a webhook endpoint on your Stripe account.
- * It confirms the PaymentIntent as soon as a non-card payment source becomes chargeable.
+ * 1. Render view after authentication.
+ * 2. On form submuit, create payment method from client & Send in to confirm_payment
+ * 3. From client side handleServerResponse function will handle if 3d Payment is required
+ * 4. call back again to confirm_payment with 3d authenticated Payment Intent,
+ * 5. Store save card details upon intent.success
  */
 
- // Create the PaymentIntent on the backend.
+// Render index page
 router.get('/', async (req, res, next) => {
-  if (req.query.success == 'true') {
-    return res.send({ success: true })
-  }  else {
-    return res.send({ success: false })
-  }
-});
-
-router.get('/paymentIntent', async (req, res, next) => {
+  // Pass member ID to view to authenticate
   return res.render('index');
 });
 
+// Callback to confirm page
 router.post('/confirm_payment', async (req, res, next) => {
   try {
+    const { payment_method_id, payment_intent_id } = req.body;
+
     let intent;
-    if (req.body.payment_method_id) {
+
+    // Handle 1st call from view
+    if (payment_method_id) {
       // Create the PaymentIntent
       intent = await stripe.paymentIntents.create({
-        payment_method: req.body.payment_method_id,
+        payment_method: payment_method_id,
         amount: 200,
-        currency: 'myr',
+        currency: 'MYR',
         confirmation_method: 'manual',
         confirm: true,
-        setup_future_usage: 'off_session'
+        setup_future_usage: 'off_session',
       });
-
-    } else if (req.body.payment_intent_id) {
+    } else if (payment_intent_id) {
       intent = await stripe.paymentIntents.confirm(
-        req.body.payment_intent_id
+        payment_intent_id,
       );
     }
+
     // Send the res to the client
     res.send(await generate_payment_response(intent));
   } catch (e) {
@@ -67,12 +65,20 @@ router.post('/confirm_payment', async (req, res, next) => {
   }
 });
 
+ // Redirect url
+router.get('/paymentIntent', async (req, res, next) => {
+  if (req.query.success == 'true') {
+    return res.send({ success: true })
+  }  else {
+    return res.send({ success: false })
+  }
+});
+
 const generate_payment_response = async (intent) => {
   // Note that if your API version is before 2019-02-11, 'requires_action'
   // appears as 'requires_source_action'.
-  
   if (
-    intent.status === 'requires_action' &&
+    intent.status === 'requires_source_action' &&
     intent.next_action.type === 'use_stripe_sdk'
   ) {
     // Tell the client to handle the action
@@ -83,8 +89,7 @@ const generate_payment_response = async (intent) => {
   } else if (intent.status === 'succeeded') {
     // The payment didn’t need any additional actions and completed!
     // Handle post-payment fulfillment
-    console.log('Attach payment');
-
+    // Create customer
     const customer = await stripe.customers.create({
       payment_method: intent.payment_method,
       name: 'Mohamed Fauzaan',
@@ -96,8 +101,9 @@ const generate_payment_response = async (intent) => {
       },
     });
 
-    console.log(customer);
-    
+    // Save the card info in a database for later.
+
+    // The payment didn’t need any additional actions and completed!
     return {
       success: true
     };
