@@ -1,16 +1,13 @@
-# Stripe Payments Demo
+# Stripe React-native paymentIntent Demo 
 
-This demo features a sample e-commerce store that uses [Stripe Elements](https://stripe.com/docs/elements), [PaymentIntents](https://stripe.com/docs/payments/payment-intents) for [Dynamic 3D Secure](https://stripe.com/docs/payments/dynamic-3ds), and the [Sources API](https://stripe.com/docs/sources) to illustrate how to accept both card payments and additional payment methods on the web.
+This demo features implimentation includes Card saving in react-native app using paymentIntent method.
+At the time Tipsi does not support PaymentIntent, this is the best alternative. This implimentation can be used in websites as well. Just replace POST Messages to page redirect. 
 
-If you’re running a compatible browser, this demo also showcases the [Payment Request API](https://stripe.com/docs/payment-request-api), [Apple Pay](https://stripe.com/docs/apple-pay), [Google Pay](https://stripe.com/docs/google-pay), and [Microsoft Pay](https://stripe.com/docs/microsoft-pay) for a seamless payment experience.
-
-**You can see this demo app running in test mode on [stripe-payments-demo.appspot.com](https://stripe-payments-demo.appspot.com).**
+Note; Please enable webkit for best performence in react-native webview
 
 ️⚠️ [️PaymentIntents](https://stripe.com/docs/payments/payment-intents) is now the recommended integration path for 3D Secure authentication. It lets you benefit from [Dynamic 3D Secure](https://stripe.com/docs/payments/dynamic-3ds) and helps you prepare for [Strong Customer Authentication](https://stripe.com/guides/strong-customer-authentication) regulation in Europe. If you integrate 3D Secure on PaymentIntents today, we’ll seamlessly transition you to [3D Secure 2](https://stripe.com/guides/3d-secure-2) once supported—without requiring any changes to your integration. As a reference you can find the previous integration that uses the Sources API for 3D Secure on [this branch](https://github.com/stripe/stripe-payments-demo/tree/legacy-cards-3d-secure).
 
 ## Overview
-
-<img src="public/images/screenshots/demo-chrome.png" alt="Demo on Google Chrome" width="610"><img src="public/images/screenshots/demo-iphone.png" alt="Demo on Safari iPhone X" width="272">
 
 This demo provides an all-in-one example for integrating with Stripe on the web:
 
@@ -28,15 +25,6 @@ This demo provides an all-in-one example for integrating with Stripe on the web:
 📱 | **Responsive design**. The checkout experience works on all screen sizes. Apple Pay works on Safari for iPhone and iPad if the Wallet is enabled, and Payment Request works on Chrome for Android.
 📦 | **No datastore required.** Products, and SKUs are stored using the [Stripe API](https://stripe.com/docs/api/products), which you can replace with your own database to keep track of products and inventory.
 
-## Payments Integration
-
-The frontend code for the demo is in the `public/` directory.
-
-The core logic of the Stripe integration is mostly contained within two files:
-
-1.  [`public/javascripts/payments.js`](public/javascripts/payments.js) creates the payment experience on the frontend using Stripe Elements.
-2.  [`server/node/routes.js`](server/node/routes.js) defines the routes on the backend that create Stripe charges and receive webhook events.
-
 ### Card Payments with Stripe Elements
 
 [Stripe Elements](https://stripe.com/docs/elements) let you quickly support cards, Apple Pay, Google Pay, and the new Payment Request API.
@@ -46,18 +34,6 @@ Stripe Elements are rich, pre-built UI components that create optimized checkout
 This demo uses both the [Card Element](https://stripe.com/docs/elements) and the [Payment Request Button](https://stripe.com/docs/elements/payment-request-button), which provides a single integration for Apple Pay, Google Pay, and the Payment Request API—a new browser standard that allows your customers to quickly provide payment and address information they’ve stored with their browser.
 
 ![Payment Request on Chrome](public/images/screenshots/demo-payment-request.png)
-
-### Beyond Cards: Payments Sources for Europe and Asia
-
-This demo also shows how to reach customers in Europe and Asia by supporting their preferred way to pay online. It supports payment methods such as [ACH credit transfers](https://stripe.com/payments/payment-methods-guide#ach-credit-transfers), [Alipay](https://stripe.com/payments/payment-methods-guide#alipay), [Bancontact](https://stripe.com/payments/payment-methods-guide#bancontact), [iDEAL](https://stripe.com/payments/payment-methods-guide#ideal), [Giropay](https://stripe.com/payments/payment-methods-guide#giropay), [SEPA Direct Debit](https://stripe.com/payments/payment-methods-guide#sepa), [SOFORT](https://stripe.com/payments/payment-methods-guide#sofort), and [WeChat Pay](https://stripe.com/payments/payment-methods-guide#wechat).
-
-The app also supports both [Multibanco](https://stripe.com/docs/sources/multibanco) and [EPS](https://stripe.com/docs/sources/eps) which are currently in Public Beta on Stripe.
-
-![WeChat Pay with the Sources API](public/images/screenshots/demo-wechat.png)
-
-The [Sources API](https://stripe.com/docs/sources) provides a single integration for all these payment methods. You can support new payment methods without changing a line of code, simply by activating it them in the [Payments Settings](https://dashboard.stripe.com/account/payments/settings) of your Stripe Dashboard.
-
-![Stripe Payment Settings](public/images/screenshots/stripe-payments-settings.png)
 
 ## Getting Started with Node
 
@@ -82,7 +58,7 @@ You’ll need the following:
 
 In your Stripe Dashboard, you can [enable the payment methods](https://dashboard.stripe.com/payments/settings) you’d like to test with one click.
 
-Some payment methods require receiving a real-time webhook notification to complete a charge. This demo is bundled with [ngrok](https://ngrok.com/), which allows us to securely receive webhooks and serve the app locally via HTTPS, which is also required to complete transactions in the browser with Elements or the Payment Request API.
+Some payment methods require additional step to verify the payment, in that case verification method is handled and redirect response to the API.
 
 ### Running the Node Server
 
@@ -102,23 +78,5 @@ Run the app:
 
     npm run start
 
-Two public ngrok URLs will be provided when the app starts. The first URL should be used to [setup webhooks](https://dashboard.stripe.com/account/webhooks) in your Stripe Dashboard. For example:
-
-    https://<example>.ngrok.io/webhook
-
-The second URL will serve our app via HTTPS. For example:
-
-    https://<example>.ngrok.io
-
-Use this second URL in your browser to start the demo.
-
-**Don’t want to use ngrok?** As long as you serve the app over HTTPS and that Stripe can reach the webhook endpoint via a public URL, all the payment flows will work.
-
-**Want to test a hosted version of this app with your own Stripe account?** You can deploy an instance of this app on Heroku and set up your own API keys:
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
-## Credits
-
-- Code: [Romain Huet](https://twitter.com/romainhuet) and [Thorsten Schaeff](https://twitter.com/thorwebdev)
-- Design: [Tatiana Van Campenhout](https://twitter.com/tatsvc)
+### Credits
+[stripe-payments-demo](https://github.com/stripe/stripe-payments-demo)
